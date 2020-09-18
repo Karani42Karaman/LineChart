@@ -10,14 +10,15 @@ using System.IO;
 using System.IO.Ports;
 using System.Diagnostics;
 using ZedGraph;
+using System.Threading;
 
 namespace chartline
 {
     public partial class Form1 : Form
     {
-        GraphPane myPane = new GraphPane();
-        RollingPointPairList listPointsOne = new RollingPointPairList(40);
-        LineItem myCurveOne;
+        GraphPane myPane = new GraphPane();// grafiğin kendisi
+        RollingPointPairList listPointsOne = new RollingPointPairList(40000);//nokta yapar anacak şimdilik noktanın boyutu 40 dır
+        LineItem myCurveOne;//çizgi çizer 
         RollingPointPairList listPointsTwo = new RollingPointPairList(40);
         LineItem myCurveTwo;
         RollingPointPairList listPointsThree = new RollingPointPairList(40);
@@ -33,6 +34,19 @@ namespace chartline
             myPane = zedGraphControl1.GraphPane;
             myPane.XAxis.Title.Text = "Time";
             myPane.YAxis.Title.Text = "Temprature";
+             
+            //tipi veriyoruz 
+            myPane.XAxis.Title.Text = "Date";
+            myPane.XAxis.Type = AxisType.Date;
+            myPane.XAxis.Scale.Format = "HH:mm:ss";
+            myPane.XAxis.Scale.MajorUnit = DateUnit.Minute;
+            myPane.XAxis.Scale.MajorStep = 1;
+            myPane.XAxis.Scale.Min = new XDate(DateTime.Now);
+            myPane.XAxis.Scale.Max = new XDate(DateTime.Now.AddMinutes(11));
+
+            //  x ekseninde değerlerin hangi parametreye göre artacağının belirlenmesinde:
+            myPane.XAxis.Scale.MajorUnit = DateUnit.Second;
+          
             zedGraphControl1.Invalidate();
             zedGraphControl1.AxisChange();
             zedGraphControl1.Refresh();
@@ -45,30 +59,28 @@ namespace chartline
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        double  i = 0.0;        Random rn = new Random();
         private void timer1_Tick(object sender, EventArgs e)
         {
-
-            int sayi = 0;
-            sayi++;
-            label10.Text = sayi.ToString();
-            //
+          //  Thread.Sleep(5000);
             myPane = zedGraphControl1.GraphPane;
-            //1
-            double x = Convert.ToDouble(label10.Text);
-            double y1 = double.Parse("0", System.Globalization.CultureInfo.InvariantCulture);
+            //1 çizgi-1
+            double x = (double)new XDate(DateTime.Now.AddMinutes(i));
+            i++;
+            double y1 = i;
             listPointsOne.Add(x, y1);
             myCurveOne = myPane.AddCurve(null, listPointsOne, Color.Blue, SymbolType.Circle);
-            
-            //2            
-            double y2 = double.Parse("0", System.Globalization.CultureInfo.InvariantCulture);
-            listPointsOne.Add(x, y2);
+
+            //2   çigi-2         
+            double y2 = 5.0;
+            listPointsTwo.Add(x, y2);
             myCurveTwo = myPane.AddCurve(null, listPointsTwo, Color.Red, SymbolType.Star);
-            
-            //3
-            double y3 = double.Parse("0", System.Globalization.CultureInfo.InvariantCulture);
-            listPointsOne.Add(x, y3);
+
+            //3  çizgi-3
+            double y3 = 10.0;
+            listPointsThree.Add(x, y3);
             myCurveThree = myPane.AddCurve(null, listPointsThree, Color.Green, SymbolType.Triangle);
-            
+
             //Grafiği yenileme
             zedGraphControl1.Invalidate();
             zedGraphControl1.AxisChange();
@@ -88,6 +100,11 @@ namespace chartline
         private void button2_Click(object sender, EventArgs e)
         {
             timer1.Enabled = false;
+        }
+
+        private void zedGraphControl1_MouseClick(object sender, MouseEventArgs e)
+        {
+
         }
     }
 }
